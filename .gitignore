@@ -1,0 +1,71 @@
+
+# ==========================
+# Python / FastAPI
+# ==========================
+
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+venv/
+.venv/
+env/
+
+.pytest_cache/
+.mypy_cache/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment Variables
+.venv/
+.env.*
+
+# Uploads
+uploads/
+
+# Logs
+*.log
+
+# ==========================
+# Flutter
+# ==========================
+
+spendwise_frontend/.dart_tool/
+spendwise_frontend/.flutter-plugins
+spendwise_frontend/.flutter-plugins-dependencies
+spendwise_frontend/.packages
+spendwise_frontend/build/
+
+# iOS
+spendwise_frontend/ios/Pods/
+spendwise_frontend/ios/.symlinks/
+spendwise_frontend/ios/Flutter/Flutter.framework
+spendwise_frontend/ios/Flutter/App.framework
+
+# Android
+spendwise_frontend/android/.gradle/
+spendwise_frontend/android/app/build/
+
+# macOS
+spendwise_frontend/macos/Pods/
+
+# ==========================
+# IDE
+# ==========================
+
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# ==========================
+# Misc
+# ==========================
+
+coverage/
+dist/
