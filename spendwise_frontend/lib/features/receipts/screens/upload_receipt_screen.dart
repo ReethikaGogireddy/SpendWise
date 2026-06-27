@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'receipt_preview_screen.dart';
 
 class UploadReceiptSheet extends StatefulWidget {
   const UploadReceiptSheet({super.key});
@@ -17,45 +18,57 @@ class _UploadReceiptSheetState extends State<UploadReceiptSheet> {
   bool _isPicking = false;
 
   // Opens the camera and captures a receipt image.
-  Future<void> _takePhoto() async {
-    setState(() {
-      _isPicking = true;
-    });
+ Future<void> _takePhoto() async {
+  await _pickImage(ImageSource.camera);
+}
 
-    try {
-      final XFile? photo = await _picker.pickImage(
-        source: ImageSource.camera,
-        imageQuality: 85,
-      );
+// Opens the user's photo gallery.
+Future<void> _chooseFromGallery() async {
+  await _pickImage(ImageSource.gallery);
+}
 
-      if (!mounted) return;
+  // Opens either the camera or gallery based on the source.
+Future<void> _pickImage(ImageSource source) async {
+  setState(() {
+    _isPicking = true;
+  });
 
-      Navigator.pop(context);
+  try {
+    final XFile? photo = await _picker.pickImage(
+      source: source,
+      imageQuality: 85,
+    );
 
-      if (photo != null) {
-        debugPrint("Captured receipt: ${photo.path}");
+    if (!mounted) return;
 
-        // TODO:
-        // Navigate to the preview screen
-        // or upload the image to the backend.
-      }
-    } catch (e) {
-      debugPrint("Camera Error: $e");
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isPicking = false;
-        });
-      }
-    }
-  }
-
-  // Opens the gallery (implemented in the next step).
-  void _chooseFromGallery() {
     Navigator.pop(context);
 
-    // TODO: Implement gallery picker.
+    if (photo != null) {
+      debugPrint("Selected receipt: ${photo.path}");
+
+      // Navigate to the preview screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ReceiptPreviewScreen(
+            imagePath: photo.path,
+          ),
+        ),
+      );
+      // TODO: 
+      // upload to the backend after this from the preview screen
+    }
+  } catch (e) {
+    debugPrint("Image Picker Error: $e");
+  } finally {
+    if (mounted) {
+      setState(() {
+        _isPicking = false;
+      });
+    }
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
