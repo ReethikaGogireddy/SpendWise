@@ -15,9 +15,16 @@ router = APIRouter(prefix="/receipts", tags=["Receipts"])
 
 
 def get_db():
+    """
+    Creates one database session
+    for every request.
+    """
+
     db = SessionLocal()
+
     try:
         yield db
+
     finally:
         db.close()
 
