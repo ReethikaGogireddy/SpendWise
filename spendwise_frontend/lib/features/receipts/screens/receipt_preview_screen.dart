@@ -1,8 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../../core/api/api_client.dart';
+import 'receipt_details_screen.dart';
 
 class ReceiptPreviewScreen extends StatefulWidget {
+
+  // taking 2 inputs, imagepath
   const ReceiptPreviewScreen({
     super.key,
     required this.imagePath,
@@ -15,36 +18,63 @@ class ReceiptPreviewScreen extends StatefulWidget {
 }
 
 class _ReceiptPreviewScreenState extends State<ReceiptPreviewScreen> {
+  // creating an object for apiClient
   final ApiClient _apiClient = ApiClient();
+  // boolean value 
   bool _isUploading = false;
 
-  Future<void> _uploadReceipt() async {
-    setState(() {
-      _isUploading = true;
-    });
 
-    try {
-      final result = await _apiClient.uploadReceipt(widget.imagePath);
+// this is the screen own function 
+  Future<void> _uploadReceipt() async { 
 
-      if (!mounted) return;
+  setState(() {
+    _isUploading = true;
+  });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Uploaded: ${result["merchant_name"] ?? "Receipt"}')),
-      );
-    } catch (e) {
-      if (!mounted) return;
+  try {
+    // sending the receipt ( image address)  to apiclient function
+    // which uploads the data to the backend and then processes it
+    // and receipt holds receipt object
+    final receipt =
+        await _apiClient.uploadReceipt(
+      widget.imagePath,
+    );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Upload error: $e')),
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isUploading = false;
-        });
-      }
+    if (!mounted) return;
+
+   // navigate to ReceiptDetailsScreen, with receipt
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            ReceiptDetailsScreen(
+          receipt: receipt,
+        ),
+      ),
+    );
+
+  } catch (e) {
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+      SnackBar(
+        content: Text(e.toString()),
+      ),
+    );
+
+  } finally {
+
+    if (mounted) {
+
+      setState(() {
+        _isUploading = false;
+      });
+
     }
   }
+}
 
   @override
   Widget build(BuildContext context) {

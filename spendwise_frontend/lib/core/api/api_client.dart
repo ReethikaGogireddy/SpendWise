@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../features/receipts/models/receipt.dart';
 
 class ApiClient {
   static const String baseUrl = "http://localhost:8000"; // pointing to the url of the server
@@ -14,26 +15,55 @@ class ApiClient {
     throw Exception("Failed to connect");
   }
 
-  Future<Map<String, dynamic>> uploadReceipt(String imagePath) async {
-    final request = http.MultipartRequest(
-      'POST',
-      Uri.parse('$baseUrl/receipts/upload'),
-    );
+  /// Uploads a receipt image to the backend.
+///
+/// Input:
+///     Local image path.
+///
+/// Output:
+///     Receipt object returned from FastAPI.
+Future<Receipt> uploadReceipt(
+  String imagePath,
+  // takes the image path
+) async {
 
-    request.files.add(
-      await http.MultipartFile.fromPath(
-        'file',
-        imagePath,
-      ),
-    );
+  // Create HTTP multipart request.
+  final request = http.MultipartRequest(
+    "POST",
+    Uri.parse("$baseUrl/receipts/upload"),
+  );
 
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
+  // Attach the image.
+  request.files.add(
+    await http.MultipartFile.fromPath(
+      "file",
+      imagePath,
+    ),
+  );
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body) as Map<String, dynamic>;
-    } else {
-      throw Exception('Upload failed: ${response.body}');
-    }
+  // Send request.
+  final streamedResponse =
+      await request.send();
+
+  // Convert streamed response into
+  // a normal HTTP response.
+  final response =
+      await http.Response.fromStream(
+    streamedResponse,
+  );
+
+  if (response.statusCode == 200) {
+
+    final json =
+        jsonDecode(response.body);
+
+    // Convert JSON into a Receipt object.
+    return Receipt.fromJson(json);
+
   }
+
+  throw Exception(
+    "Upload failed: ${response.body}",
+  );
+}
 }

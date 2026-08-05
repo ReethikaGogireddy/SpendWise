@@ -1,10 +1,13 @@
 import os
 import uuid
-from sqlalchemy.orm import Session
-from app.receipts.models import Receipt
 from app.core.config import settings
 from app.ocr.service import OCRService
 from app.receipts.repository import ReceiptRepository
+from app.parser.item_parser import ItemParser
+from app.receipts.response_models import (
+    ReceiptResponse,
+    ReceiptItemResponse,
+)
 
 
 class ReceiptService:
@@ -28,6 +31,7 @@ class ReceiptService:
 
         self.repository = ReceiptRepository(db)
         self.ocr = OCRService()
+        self.parser = ItemParser()
 
     def process_receipt(self, upload_file):
         """
@@ -79,14 +83,33 @@ class ReceiptService:
         # Save into database.
         # -----------------------
 
-        receipt = self.repository.save(
-            image_path=image_path,
-            raw_text=raw_text,
-        )
+        items = self.parser.parse(raw_text)
 
         # -----------------------
         # Step 4
         # Return saved receipt.
         # -----------------------
 
-        return receipt
+        receipt = self.repository.save(
+        image_path=image_path,
+        raw_text=raw_text,
+)
+        
+        # -----------------------
+        # Step 5
+        # Convert parser output
+        # into API response.
+        # -----------------------
+
+        response = ReceiptResponse(
+            receipt_id=receipt.id,
+            items=[
+                ReceiptItemResponse(
+                    name=item.name,
+                    price=item.price,
+                )
+                for item in items
+            ],
+        )
+
+        return response
