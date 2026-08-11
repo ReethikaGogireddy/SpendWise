@@ -1,3 +1,5 @@
+# Frondend Flow
+
 ReceiptPreviewScreen
 
         │
@@ -51,7 +53,7 @@ ReceiptDetailsScreen
 
 
 
-Backend Flow:
+# Backend Flow:
 Flutter
 
 ↓
